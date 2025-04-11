@@ -67,6 +67,16 @@
     }
 
     async function sendMsg() {
+      if (liff.getContext().type !== "none") {
+        await liff.sendMessages([
+          {
+            "type": "sticker",
+            "stickerId": 1,
+            "packageId": 1
+          }
+        ])
+        alert("Message sent")
+      }
     }
 
     function getContext() {
@@ -97,6 +107,66 @@
     }
     async function sendFlexMessage() {
       try {
+        if (!globalUserid) {
+          const profile = await liff.getProfile();
+          globalUserid = profile.userId;
+        }
+        
+        const uri = "https://gsct3c2p-3001.asse.devtunnels.ms";
+        const response = await fetch(`${uri}/api/v1/sendflexmessage/${globalUserid}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: "flex",
+            altText: "ข้อความจากระบบ",
+            contents: {
+              type: "bubble",
+              body: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    text: "สวัสดี",
+                    weight: "bold",
+                    size: "xl"
+                  },
+                  {
+                    type: "text",
+                    text: "นี่คือข้อความทดสอบระบบ",
+                    margin: "md"
+                  },
+                  {
+                    type: "button",
+                    style: "primary",
+                    action: {
+                      type: "uri",
+                      label: "คลิกเพื่อดูรายละเอียด",
+                      uri: "https://linecorp.com"
+                    },
+                    margin: "md"
+                  }
+                ]
+              }
+            }
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log("ส่งข้อข้อความสําเร็จ:", result);
+        return result;
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการส่งข้อความ:", error);
+      }
+    }
+    /* async function sendFlexMessage() {
+      try {
       if (!globalUserid) {
       const profile = await liff.getProfile();
       globalUserid = profile.userId;
@@ -118,6 +188,7 @@
       console.error("เกิดข้อผิดพลาดในการส่งข้อความ:", error);
       }
       }
+    */
 
 
     async function main() {
